@@ -2,14 +2,21 @@ package mp3Tagger;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.util.Scanner;
 import com.mpatric.mp3agic.*;
 
 public class MP3Tagger {
 
 	public static void main(String[] args) throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException {
 		
-		File folder = new File("C:\\Users\\Sri\\Desktop\\New Downloads\\Tracks");
+		System.out.println("Enter directory (open folder in explorer, right click folder name in nav bar, hit 'copy address'): ");
+		Scanner sc = new Scanner(System.in);
+		String address = sc.nextLine();
+		
+		address = address.replace("\\", "\\\\");
+		
+		
+		File folder = new File(address);
 		File[] listOfFiles = folder.listFiles();
 		
 		
@@ -36,7 +43,7 @@ public class MP3Tagger {
 			System.out.println("Saved "+ f.toString());
 		}
 		
-		
+		sc.close();
 		
 
 	}
