@@ -21,6 +21,9 @@ public class MP3Tagger {
 		File folder = new File(address);
 		File[] listOfFiles = folder.listFiles();
 
+		/**
+		 * add all image files to separate List
+		 */
 		for(File f:listOfFiles){
 			if(f.toString().endsWith("jpg") || f.toString().endsWith("png") || f.toString().endsWith("jpeg")    ){
 				images.add(f);
@@ -29,9 +32,10 @@ public class MP3Tagger {
 		for(File f:listOfFiles){
 			if(f.toString().endsWith(".mp3")){
 				Mp3File s = new Mp3File(f.toString());
+				
 				String[] tag = s.getFilename().split(" - ");
 				String temp = tag[0];
-				int index = temp.lastIndexOf("\\");
+				int index = temp.lastIndexOf("\\"); //get rid of directory address in string
 				temp = temp.substring(index+1);
 				tag[0]=temp;
 				String artist = tag[0];
@@ -56,7 +60,7 @@ public class MP3Tagger {
 						s.setId3v2Tag(new ID3v24Tag());
 						System.out.println("set tag");
 					}
-					if(imgName.equals(album)){
+					if(imgName.equals(album)){ //album art found
 						RandomAccessFile file = new RandomAccessFile(i, "r");
 						byte[] bytes = new byte[(int) file.length()];
 						file.read(bytes);
@@ -66,8 +70,10 @@ public class MP3Tagger {
 					}
 				}
 				
-				s.save(s.getFilename()+"(1).mp3"); //overwrite mp3
+				s.save(s.getFilename()+" (tag).mp3"); //overwrite mp3
 				System.out.println("Saved "+ f.toString()); 
+				f.delete();
+				
 			}
 
 
