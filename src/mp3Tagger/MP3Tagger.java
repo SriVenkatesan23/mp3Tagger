@@ -26,24 +26,20 @@ public class MP3Tagger extends JFrame {
 
 	public MP3Tagger(){
 
-
 		setTitle("Automatic MP3 Tagger");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(new BorderLayout());
 		createMenu();
-
 		//Input text area
 		textbox.setBackground(Color.darkGray);
 		textbox.setText(" Use 'File' tab to select directory, or replace this text with directory path and hit button below. \r\n (To get directory path, right click the folder name in explorer nav bar, and hit 'Copy Address')");
 		textbox.setForeground(Color.lightGray);
 		textbox.setFont(new Font("Trebuchet MS", 12, 12));
-
 		//Set content pane
 		Container c = getContentPane();
 		//Add all components to content pane      
 		c.add(textbox, BorderLayout.CENTER);
 		c.add(tagButton, BorderLayout.SOUTH);
-
 		//once user enters directory into the text field, they can press the button to tag all mp3's
 		MP3Tagger.tagButton.addActionListener(new ActionListener() {
 			@Override
@@ -53,14 +49,16 @@ public class MP3Tagger extends JFrame {
 				try {
 					tag();
 				} catch (UnsupportedTagException | InvalidDataException | NotSupportedException | IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
 		});
 	}
 
-
+	/**
+	 *Create menu from which user can select directories 
+	 */
+	
 	private JMenuBar createMenu(){
 		JMenuBar JMB = new JMenuBar();
 		setJMenuBar(JMB);
@@ -68,33 +66,40 @@ public class MP3Tagger extends JFrame {
 		JMB.add(file);
 		file.add(Open);
 		file.addSeparator();
-
 		file.getItem(0).setIcon(null);
-
 		return JMB;
 	}
+	
+	/**
+	 * User selects folder and the tag method is automatically called 
+	 */
 	Action Open = new AbstractAction("Select Directory", new ImageIcon("open.gif")) {
-
 		private static final long serialVersionUID = 1L;
-
 		public void actionPerformed(ActionEvent e) {
-
 			if(dialog.showOpenDialog(null)==JFileChooser.APPROVE_OPTION) {
 				//dialog.getSelectedFile returns file with name given by dialog
 				File directory = dialog.getSelectedFile(); 
 				dir  = directory.toString();
-				textbox.setText("Directory: "+dir);
-				try {
+				textbox.setText("Directory: "+dir); //print selected directory to the text field
+				try { 
 					tag();
 				} catch (UnsupportedTagException | InvalidDataException | NotSupportedException | IOException e1) {
 					e1.printStackTrace();
 				}
-
 			}
-
 		}
 	};
 
+	/**
+	 * Loops through each file in the directory and uses the filename and local image files
+	 * to tag the mp3 with artist, album, song title, and album cover
+	 * 
+	 * @throws UnsupportedTagException
+	 * @throws InvalidDataException
+	 * @throws IOException
+	 * @throws NotSupportedException
+	 */
+	
 	public void tag() throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException{
 
 		dir = dir.replace("\\", "\\\\");
@@ -110,13 +115,16 @@ public class MP3Tagger extends JFrame {
 				images.add(f);
 			}
 		}
+		/*
+		 * loop through all mp3 files and tag them
+		 */
 		for(File f:listOfFiles){
 			if(f.toString().endsWith(".mp3")){
 				Mp3File s = new Mp3File(f.toString());
 
 				String[] tag = s.getFilename().split(" - ");
 				String temp = tag[0];
-				int index = temp.lastIndexOf("\\"); //get rid of directory dir in string
+				int index = temp.lastIndexOf("\\"); //get rid of directory in string
 				temp = temp.substring(index+1);
 				tag[0]=temp;
 				String artist = tag[0];
@@ -127,7 +135,6 @@ public class MP3Tagger extends JFrame {
 				s.getId3v2Tag().setArtist(artist);
 				s.getId3v2Tag().setAlbum(album);
 				s.getId3v2Tag().setTitle(song);
-
 				//getting image
 				/*
 				 * cover art should have same name as track's album
@@ -136,10 +143,8 @@ public class MP3Tagger extends JFrame {
 					String imgName = i.toString();
 					int ext = imgName.indexOf("."); //index of extension
 					imgName = imgName.substring(dir.length()-4, ext); //remove file extension and directory
-
 					if (!s.hasId3v2Tag()) {// if s doesn't have tag, give it one
 						s.setId3v2Tag(new ID3v24Tag());
-
 					}
 					if(imgName.equals(album)){ //album art found
 						RandomAccessFile file = new RandomAccessFile(i, "r");
@@ -150,15 +155,11 @@ public class MP3Tagger extends JFrame {
 						break;
 					}
 				}
-
 				s.save(s.getFilename()+".mp3"); //overwrite mp3
 				f.delete();
-
 			}
-
-
 		}
-		textbox.setText("All files tagged!");
+		textbox.setText(textbox.getText()+"\r\n All files tagged!");
 	}
 
 
