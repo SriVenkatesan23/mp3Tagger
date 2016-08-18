@@ -1,24 +1,64 @@
 package mp3Tagger;
 import java.io.File;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.*;
 import java.io.*;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
+import javax.swing.*;
 import com.mpatric.mp3agic.*;
 
-public class MP3Tagger {
+public class MP3Tagger extends JFrame {
 
-	public static void main(String[] args) throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException {
+	private static final long serialVersionUID = 1L;
+	public static JTextArea textbox = new JTextArea(10, 50);
+	public static JButton tagButton = new JButton("Tag all files in this directory");
+	public static String dir;
 
-		System.out.println("Enter directory (open folder in explorer, right click folder name in nav bar, hit 'copy address'): ");
-		Scanner sc = new Scanner(System.in);
-		String address = sc.nextLine();
+	public MP3Tagger(){
 
-		//replace '\' with '\\' so that the directory works
-		address = address.replace("\\", "\\\\");
-		int nm = 0;
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setLayout(new BorderLayout());
+
+		//INPUT TEXT AREA
+		textbox.setBackground(Color.darkGray);
+		textbox.setText("Replace this text with directory name (open folder in explorer, right click folder name in nav bar, hit 'copy dir'):  ");
+		textbox.setForeground(Color.WHITE);
+
+		//SET CONTENT PANE
+		Container c = getContentPane();
+		//ADD COMPONENTS TO CONTENT PANE        
+		c.add(textbox, BorderLayout.CENTER);
+		c.add(tagButton, BorderLayout.SOUTH);
+		MP3Tagger.tagButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dir = textbox.getText();
+				textbox.setText("");    
+				try {
+					tag();
+				} catch (UnsupportedTagException | InvalidDataException | NotSupportedException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+	}
+
+	public static void main(String[] args)  throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException {
+		MP3Tagger m = new MP3Tagger();
+		m.setVisible(true);
+		m.setFocusable(true);
+		m.setSize(700,200);
+	}
+
+	public void tag() throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException{
+	
+		dir = dir.replace("\\", "\\\\");
 		ArrayList<File> images = new ArrayList<File>();
-		File folder = new File(address);
+		File folder = new File(dir);
 		File[] listOfFiles = folder.listFiles();
 
 		/**
@@ -32,10 +72,10 @@ public class MP3Tagger {
 		for(File f:listOfFiles){
 			if(f.toString().endsWith(".mp3")){
 				Mp3File s = new Mp3File(f.toString());
-				
+
 				String[] tag = s.getFilename().split(" - ");
 				String temp = tag[0];
-				int index = temp.lastIndexOf("\\"); //get rid of directory address in string
+				int index = temp.lastIndexOf("\\"); //get rid of directory dir in string
 				temp = temp.substring(index+1);
 				tag[0]=temp;
 				String artist = tag[0];
@@ -54,11 +94,11 @@ public class MP3Tagger {
 				for(File i: images){
 					String imgName = i.toString();
 					int ext = imgName.indexOf("."); //index of extension
-					imgName = imgName.substring(address.length()-4, ext); //remove file extension and directory
-					System.out.println(imgName);
+					imgName = imgName.substring(dir.length()-4, ext); //remove file extension and directory
+
 					if (!s.hasId3v2Tag()) {// if s doesn't have tag, give it one
 						s.setId3v2Tag(new ID3v24Tag());
-						System.out.println("set tag");
+
 					}
 					if(imgName.equals(album)){ //album art found
 						RandomAccessFile file = new RandomAccessFile(i, "r");
@@ -69,18 +109,16 @@ public class MP3Tagger {
 						break;
 					}
 				}
-				
-				s.save(s.getFilename()+" (tag).mp3"); //overwrite mp3
-				System.out.println("Saved "+ f.toString()); 
+
+				s.save(s.getFilename()+".mp3"); //overwrite mp3
 				f.delete();
-				
+
 			}
 
 
 		}
-		sc.close();
+		textbox.setText("All files tagged!");
 	}
-
 
 
 }
