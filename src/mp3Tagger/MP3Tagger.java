@@ -13,23 +13,38 @@ public class MP3Tagger extends JFrame {
 	public static JTextArea textbox = new JTextArea(10, 50);
 	public static JButton tagButton = new JButton("Tag all files in this directory");
 	public static String dir;
+	private JFileChooser dialog = new JFileChooser(System.getProperty("user.dir")); //allows user to choose files
+
+	public static void main(String[] args)  throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException {
+		MP3Tagger m = new MP3Tagger();
+		m.dialog.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		m.dialog.setAcceptAllFileFilterUsed(false);
+		m.setVisible(true);
+		m.setFocusable(true);
+		m.setSize(700,200);
+	}
 
 	public MP3Tagger(){
 
+
+		setTitle("Automatic MP3 Tagger");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(new BorderLayout());
+		createMenu();
 
-		//INPUT TEXT AREA
+		//Input text area
 		textbox.setBackground(Color.darkGray);
-		textbox.setText("Replace this text with directory name (open folder in explorer, right click folder name in nav bar, hit 'copy dir'):  ");
+		textbox.setText(" Use 'File' tab to select directory, or replace this text with directory path and hit button below. \r\n (To get directory path, right click the folder name in explorer nav bar, and hit 'Copy Address')");
 		textbox.setForeground(Color.lightGray);
 		textbox.setFont(new Font("Trebuchet MS", 12, 12));
 
-		//SET CONTENT PANE
+		//Set content pane
 		Container c = getContentPane();
-		//ADD COMPONENTS TO CONTENT PANE        
+		//Add all components to content pane      
 		c.add(textbox, BorderLayout.CENTER);
 		c.add(tagButton, BorderLayout.SOUTH);
+
+		//once user enters directory into the text field, they can press the button to tag all mp3's
 		MP3Tagger.tagButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -45,15 +60,43 @@ public class MP3Tagger extends JFrame {
 		});
 	}
 
-	public static void main(String[] args)  throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException {
-		MP3Tagger m = new MP3Tagger();
-		m.setVisible(true);
-		m.setFocusable(true);
-		m.setSize(700,200);
+
+	private JMenuBar createMenu(){
+		JMenuBar JMB = new JMenuBar();
+		setJMenuBar(JMB);
+		JMenu file = new JMenu("File"); //file dropdown menu
+		JMB.add(file);
+		file.add(Open);
+		file.addSeparator();
+
+		file.getItem(0).setIcon(null);
+
+		return JMB;
 	}
+	Action Open = new AbstractAction("Select Directory", new ImageIcon("open.gif")) {
+
+		private static final long serialVersionUID = 1L;
+
+		public void actionPerformed(ActionEvent e) {
+
+			if(dialog.showOpenDialog(null)==JFileChooser.APPROVE_OPTION) {
+				//dialog.getSelectedFile returns file with name given by dialog
+				File directory = dialog.getSelectedFile(); 
+				dir  = directory.toString();
+				textbox.setText("Directory: "+dir);
+				try {
+					tag();
+				} catch (UnsupportedTagException | InvalidDataException | NotSupportedException | IOException e1) {
+					e1.printStackTrace();
+				}
+
+			}
+
+		}
+	};
 
 	public void tag() throws UnsupportedTagException, InvalidDataException, IOException, NotSupportedException{
-	
+
 		dir = dir.replace("\\", "\\\\");
 		ArrayList<File> images = new ArrayList<File>();
 		File folder = new File(dir);
