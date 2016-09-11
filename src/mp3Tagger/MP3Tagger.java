@@ -130,6 +130,10 @@ public class MP3Tagger extends JFrame {
 				String artist = tag[0];
 				String album = tag[1];
 				String song = tag[2];
+				
+				//file should be named in the following format - "Artist - Album - Song"
+				//album art filename should be album name
+				
 				/*Example:
 				* File name: Led Zeppelin - Houses Of The Holy - D'yer Mak'er
 				* index 0 of array holds "Led Zeppelin"
