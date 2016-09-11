@@ -130,7 +130,14 @@ public class MP3Tagger extends JFrame {
 				String artist = tag[0];
 				String album = tag[1];
 				String song = tag[2];
-
+				/*Example:
+				* File name: Led Zeppelin - Houses Of The Holy - D'yer Mak'er
+				* index 0 of array holds "Led Zeppelin"
+				* index 1 of array holds "Houses Of The Holy"
+				* index 2 of array holds "D'yer Mak'er"
+				*/
+				
+				
 				song = song.substring(0, song.length()-4); 
 				s.getId3v2Tag().setArtist(artist);
 				s.getId3v2Tag().setAlbum(album);
