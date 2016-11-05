@@ -16,3 +16,11 @@ Run the application. You have two options: you can click the "File" tab at the t
 mp3 filename: *Michael Jackson - Thriller - Wanna Be Startin' Somethin'*
 
 image file: *Thriller*
+
+
+###In Progress:
+
+1) Currently integrating MP3Tagger with the Spotify API so that, in case the user does not include album art in the directory, the software will browse Spotify and find the appropriate art
+
+2) Reworking UI to make it more visually appealing
+
